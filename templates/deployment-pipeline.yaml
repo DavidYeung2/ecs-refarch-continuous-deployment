@@ -5,23 +5,19 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   GitHubRepo:
     Type: String
+    Default: reactapp
 
   GitHubBranch:
     Type: String
-
+    Default: develop 
+  
   GitHubToken:
     Type: String
     NoEcho: true
 
   GitHubUser:
     Type: String
-
-  Cluster:
-    Type: String
-
-  Service:
-    Type: String
-
+    Default: SHOOTSTA
 
 Resources:
   Repository:
@@ -121,11 +117,18 @@ Resources:
           phases:
             pre_build:
               commands:
+                - curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+                - apt-get install -y nodejs
                 - $(aws ecr get-login --no-include-email)
                 - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
                 - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
             build:
               commands:
+                - npm install
+                - npm run build
+                - cp -r ./build dist
+                - cp ./deploy/Dockerfile .
+                - cp ./deploy/default.conf .
                 - docker build --tag "$IMAGE_URI" .
             post_build:
               commands:
@@ -184,22 +187,6 @@ Resources:
               OutputArtifacts:
                 - Name: BuildOutput
               RunOrder: 1
-        - Name: Deploy
-          Actions:
-            - Name: Deploy
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Version: 1
-                Provider: ECS
-              Configuration:
-                ClusterName: !Ref Cluster
-                ServiceName: !Ref Service
-                FileName: images.json
-              InputArtifacts:
-                - Name: BuildOutput
-              RunOrder: 1
-
 
 Outputs:
   PipelineUrl:
