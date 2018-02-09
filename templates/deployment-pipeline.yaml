@@ -121,16 +121,23 @@ Resources:
           phases:
             pre_build:
               commands:
+                - curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+                - apt-get install -y nodejs
                 - $(aws ecr get-login --no-include-email)
                 - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
                 - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
             build:
               commands:
+                - npm install
+                - npm run build
+                - cp -r ./build dist
+                - cp ./deploy/Dockerfile .
+                - cp ./deploy/default.conf .
                 - docker build --tag "$IMAGE_URI" .
             post_build:
               commands:
                 - docker push "$IMAGE_URI"
-                - printf '[{"name":"simple-app","imageUri":"%s"}]' "$IMAGE_URI" > images.json
+                - printf '[{"name":"react-app","imageUri":"%s"}]' "$IMAGE_URI" > images.json
           artifacts:
             files: images.json
       Environment:
