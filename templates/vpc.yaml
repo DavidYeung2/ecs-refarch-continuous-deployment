@@ -47,7 +47,7 @@ Resources:
       CidrBlock: !Ref Subnet1CIDR
       Tags:
         - Key: Name
-          Value: !Sub ${Name} (Public)
+          Value: !Sub ${Name} (Public) Zone 1
 
   Subnet2:
     Type: AWS::EC2::Subnet
@@ -58,7 +58,7 @@ Resources:
       CidrBlock: !Ref Subnet2CIDR
       Tags:
         - Key: Name
-          Value: !Sub ${Name} (Public)
+          Value: !Sub ${Name} (Public) Zone 2
 
   RouteTable:
     Type: AWS::EC2::RouteTable
