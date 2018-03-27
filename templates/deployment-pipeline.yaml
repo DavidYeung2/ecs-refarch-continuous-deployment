@@ -27,6 +27,7 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     DeletionPolicy: Retain
+    RepositoryName: p7handsonlabs
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
